@@ -1,9 +1,0 @@
-[submodule "services/url-service"]
-	path = services/url-service
-	url = https://github.com/OluwadaraDaily/url-service
-[submodule "services/redirect-service"]
-	path = services/redirect-service
-	url = https://github.com/OluwadaraDaily/redirect-service
-[submodule "services/analytics-service"]
-	path = services/analytics-service
-	url = https://github.com/OluwadaraDaily/analytics-service
