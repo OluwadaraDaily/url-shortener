@@ -4,5 +4,11 @@
 
 ```bash
 
-docker-compose -f docker-compose.dev.yaml --env-file ../../.env up --build -d
+docker compose -f docker-compose.dev.yaml --env-file ../../.env up --build -d
+```
+
+## Spinning down containers
+
+```bash
+docker compose -f docker-compose.dev.yaml down -v
 ```
