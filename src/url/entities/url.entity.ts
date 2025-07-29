@@ -1,0 +1,29 @@
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
+export class Url {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ nullable: true })
+  user_id: string;
+
+  @Column({ type: 'varchar', length: 2048, nullable: false })
+  original_url: string;
+
+  @Column({ type: 'varchar', length: 2048, nullable: false })
+  short_code: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  tag: string;
+
+  @Column({ type: 'boolean', default: true, nullable: false })
+  is_active: boolean;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    nullable: false,
+  })
+  created_at: Date;
+}
