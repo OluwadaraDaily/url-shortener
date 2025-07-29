@@ -45,7 +45,22 @@ export class UrlService {
   }
 
   async create(createUrlDto: CreateUrlDto) {
-    const shortCode = createUrlDto.short_code || this.generateShortCode();
+    const checkForDuplicateUrl = await this.urlRepository.findOne({
+      where: { original_url: createUrlDto.original_url },
+    });
+    if (checkForDuplicateUrl) {
+      throw new Error('URL already exists');
+    }
+
+    const checkForDuplicateTag = await this.urlRepository.findOne({
+      where: { tag: createUrlDto.tag },
+    });
+    if (checkForDuplicateTag) {
+      throw new Error('Tag already exists');
+    }
+
+    const shortCode =
+      createUrlDto.short_code || (await this.generateUniqueShortCode(6, 5));
     const url = this.urlRepository.create({
       ...createUrlDto,
       short_code: shortCode,
