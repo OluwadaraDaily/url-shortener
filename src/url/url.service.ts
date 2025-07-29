@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { Repository } from 'typeorm';
@@ -91,5 +91,15 @@ export class UrlService {
   async remove(id: string) {
     await this.urlRepository.delete(id);
     return { message: 'Url deleted successfully' };
+  }
+
+  async redirectUrl(shortCode: string): Promise<string> {
+    const url = await this.urlRepository.findOne({
+      where: { short_code: shortCode },
+    });
+    if (!url) {
+      throw new NotFoundException('Url not found');
+    }
+    return url.original_url;
   }
 }

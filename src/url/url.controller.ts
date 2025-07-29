@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
+  Redirect,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
@@ -13,7 +15,7 @@ import { UpdateUrlDto } from './dto/update-url.dto';
 import { ApiError, ApiResponse } from 'src/common/types';
 import { Url } from './entities/url.entity';
 
-@Controller('url')
+@Controller('api/url')
 export class UrlController {
   constructor(private readonly urlService: UrlService) {}
 
@@ -111,6 +113,27 @@ export class UrlController {
       statusCode: 200,
       message: 'Url deleted successfully',
       data: response,
+    };
+  }
+}
+
+@Controller()
+export class UrlRedirectController {
+  constructor(private readonly urlService: UrlService) {}
+
+  @Get(':shortCode')
+  @Redirect()
+  async redirect(
+    @Param('shortCode') shortCode: string,
+  ): Promise<{ url: string; statusCode: number }> {
+    console.log('shortCode =>', shortCode);
+    const url = await this.urlService.redirectUrl(shortCode);
+    if (!url) {
+      throw new NotFoundException('Url not found');
+    }
+    return {
+      url: url,
+      statusCode: 302,
     };
   }
 }
