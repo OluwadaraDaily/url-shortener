@@ -8,12 +8,15 @@ import {
   Delete,
   NotFoundException,
   Redirect,
+  Req,
+  Ip,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { ApiError, ApiResponse } from 'src/common/types';
 import { Url } from './entities/url.entity';
+import { Request as ExpressRequest } from 'express';
 
 @Controller('api/url')
 export class UrlController {
@@ -125,9 +128,10 @@ export class UrlRedirectController {
   @Redirect()
   async redirect(
     @Param('shortCode') shortCode: string,
+    @Req() request: ExpressRequest,
+    @Ip() ip: string,
   ): Promise<{ url: string; statusCode: number }> {
-    console.log('shortCode =>', shortCode);
-    const url = await this.urlService.redirectUrl(shortCode);
+    const url = await this.urlService.redirectUrl(shortCode, request, ip);
     if (!url) {
       throw new NotFoundException('Url not found');
     }

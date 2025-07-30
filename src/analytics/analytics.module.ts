@@ -8,5 +8,6 @@ import { ClickLogs } from './entities/click_logs.entity';
   imports: [TypeOrmModule.forFeature([ClickLogs])],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],
+  exports: [AnalyticsService],
 })
 export class AnalyticsModule {}

@@ -1,17 +1,47 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Url } from './entities/url.entity';
 import * as crypto from 'crypto';
+import { AnalyticsService } from 'src/analytics/analytics.service';
+import { Reader, ReaderModel } from '@maxmind/geoip2-node';
+import { join } from 'path';
+import { Request as ExpressRequest } from 'express';
 
 @Injectable()
-export class UrlService {
+export class UrlService implements OnModuleInit {
+  private geoip: ReaderModel;
   constructor(
     @InjectRepository(Url)
     private readonly urlRepository: Repository<Url>,
+    @Inject(AnalyticsService)
+    private readonly analyticsService: AnalyticsService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      this.geoip = await Reader.open(
+        join(
+          __dirname,
+          '..',
+          '..',
+          'resources',
+          'geoip',
+          'GeoLite2-Country.mmdb',
+        ),
+      );
+    } catch (error) {
+      console.error('Failed to load GeoIP database:', error);
+    }
+  }
+
   generateShortCode(length: number = 6) {
     const characters =
       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -100,13 +130,40 @@ export class UrlService {
     return { message: 'Url deleted successfully' };
   }
 
-  async redirectUrl(shortCode: string): Promise<string> {
+  private getCountryFromIp(ip: string): string {
+    try {
+      if (!this.geoip) {
+        return 'Unknown';
+      }
+      const response = this.geoip.country(ip);
+      return response?.country?.isoCode || 'Unknown';
+    } catch (error) {
+      console.error('Failed to get country from IP:', error);
+      return 'Unknown';
+    }
+  }
+
+  async redirectUrl(
+    shortCode: string,
+    request: ExpressRequest,
+    ip: string,
+  ): Promise<string> {
     const url = await this.urlRepository.findOne({
       where: { short_code: shortCode },
     });
     if (!url) {
       throw new NotFoundException('Url not found');
     }
+    const country = this.getCountryFromIp(ip);
+    const userAgent = request.headers['user-agent'] as string;
+    const referer = request.headers.referer as string;
+    await this.analyticsService.createClickLog({
+      url_id: url.id,
+      ip_address: ip,
+      user_agent: userAgent,
+      referer: referer,
+      country: country,
+    });
     return url.original_url;
   }
 }
