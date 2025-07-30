@@ -130,11 +130,36 @@ export class UrlService implements OnModuleInit {
     return { message: 'Url deleted successfully' };
   }
 
+  private isPrivateIP(ip: string): boolean {
+    // Remove IPv6 prefix if present
+    const ipv4 = ip.replace(/^::ffff:/, '');
+    // Check if it's a private IPv4 address
+    const parts = ipv4.split('.');
+    if (parts.length !== 4) return true; // Invalid IPv4 format, treat as private
+    const firstOctet = parseInt(parts[0]);
+    const secondOctet = parseInt(parts[1]);
+
+    return (
+      firstOctet === 10 || // 10.0.0.0/8
+      (firstOctet === 172 && secondOctet >= 16 && secondOctet <= 31) || // 172.16.0.0/12
+      (firstOctet === 192 && secondOctet === 168) || // 192.168.0.0/16
+      firstOctet === 127 || // localhost
+      ipv4 === '0.0.0.0'
+    );
+  }
+
   private getCountryFromIp(ip: string): string {
     try {
       if (!this.geoip) {
+        console.error('GeoIP database not initialized');
         return 'Unknown';
       }
+
+      // Handle private IP addresses
+      if (this.isPrivateIP(ip)) {
+        return 'Local';
+      }
+
       const response = this.geoip.country(ip);
       return response?.country?.isoCode || 'Unknown';
     } catch (error) {
@@ -157,6 +182,7 @@ export class UrlService implements OnModuleInit {
     const country = this.getCountryFromIp(ip);
     const userAgent = request.headers['user-agent'] as string;
     const referer = request.headers.referer as string;
+
     await this.analyticsService.createClickLog({
       url_id: url.id,
       ip_address: ip,
