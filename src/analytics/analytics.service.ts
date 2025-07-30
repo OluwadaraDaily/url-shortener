@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClickLogsDto } from './dto/create-click-logs.dto';
 import { UpdateClickLogsDto } from './dto/update-click-logs.dto';
 import { ClickLogs } from './entities/click_logs.entity';
@@ -12,24 +12,33 @@ export class AnalyticsService {
     private clickLogsRepository: Repository<ClickLogs>,
   ) {}
 
-  async create(createClickLogsDto: CreateClickLogsDto) {
+  async createClickLog(createClickLogsDto: CreateClickLogsDto) {
     const clickLog = this.clickLogsRepository.create(createClickLogsDto);
     return this.clickLogsRepository.save(clickLog);
   }
 
-  async findAll() {
+  async findAllClickLogs() {
     return this.clickLogsRepository.find();
   }
 
-  async findOne(id: string) {
-    return this.clickLogsRepository.findOne({ where: { id } });
+  async findOneClickLog(id: string) {
+    const clickLog = await this.clickLogsRepository.findOne({ where: { id } });
+    if (!clickLog) {
+      throw new NotFoundException('Click log not found');
+    }
+    return clickLog;
   }
 
-  async update(id: string, updateClickLogsDto: UpdateClickLogsDto) {
-    return this.clickLogsRepository.update(id, updateClickLogsDto);
+  async updateClickLog(id: string, updateClickLogsDto: UpdateClickLogsDto) {
+    const clickLog = await this.findOneClickLog(id);
+    return this.clickLogsRepository.save({
+      ...clickLog,
+      ...updateClickLogsDto,
+    });
   }
 
-  async remove(id: string) {
+  async removeClickLog(id: string) {
+    await this.findOneClickLog(id);
     return this.clickLogsRepository.delete(id);
   }
 }
