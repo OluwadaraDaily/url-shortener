@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UrlModule } from './url/url.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { UrlModule } from './url/url.module';
       inject: [ConfigService],
     }),
     UrlModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
