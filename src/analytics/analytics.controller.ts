@@ -1,15 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
-import { CreateAnalyticsDto } from './dto/create-analytics.dto';
-import { UpdateAnalyticsDto } from './dto/update-analytics.dto';
+import { CreateClickLogsDto } from './dto/create-click-logs.dto';
+import { UpdateClickLogsDto } from './dto/update-click-logs.dto';
 
 @Controller('analytics')
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Post()
-  create(@Body() createAnalyticsDto: CreateAnalyticsDto) {
-    return this.analyticsService.create(createAnalyticsDto);
+  create(@Body() createClickLogsDto: CreateClickLogsDto) {
+    return this.analyticsService.create(createClickLogsDto);
   }
 
   @Get()
@@ -19,16 +27,19 @@ export class AnalyticsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.analyticsService.findOne(+id);
+    return this.analyticsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAnalyticsDto: UpdateAnalyticsDto) {
-    return this.analyticsService.update(+id, updateAnalyticsDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateClickLogsDto: UpdateClickLogsDto,
+  ) {
+    return this.analyticsService.update(id, updateClickLogsDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.analyticsService.remove(+id);
+    return this.analyticsService.remove(id);
   }
 }

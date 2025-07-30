@@ -83,6 +83,13 @@ export class UrlService {
     });
   }
 
+  async findOneWithClickLogs(id: string) {
+    return await this.urlRepository.findOne({
+      where: { id },
+      relations: { clickLogs: true },
+    });
+  }
+
   async update(id: string, updateUrlDto: UpdateUrlDto) {
     await this.urlRepository.update(id, updateUrlDto);
     return await this.urlRepository.findOne({ where: { id } });

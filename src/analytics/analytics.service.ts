@@ -1,26 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAnalyticsDto } from './dto/create-analytics.dto';
-import { UpdateAnalyticsDto } from './dto/update-analytics.dto';
+import { CreateClickLogsDto } from './dto/create-click-logs.dto';
+import { UpdateClickLogsDto } from './dto/update-click-logs.dto';
+import { ClickLogs } from './entities/click_logs.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AnalyticsService {
-  create(createAnalyticsDto: CreateAnalyticsDto) {
-    return 'This action adds a new analytics';
+  constructor(
+    @InjectRepository(ClickLogs)
+    private clickLogsRepository: Repository<ClickLogs>,
+  ) {}
+
+  async create(createClickLogsDto: CreateClickLogsDto) {
+    const clickLog = this.clickLogsRepository.create(createClickLogsDto);
+    return this.clickLogsRepository.save(clickLog);
   }
 
-  findAll() {
-    return `This action returns all analytics`;
+  async findAll() {
+    return this.clickLogsRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} analytics`;
+  async findOne(id: string) {
+    return this.clickLogsRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateAnalyticsDto: UpdateAnalyticsDto) {
-    return `This action updates a #${id} analytics`;
+  async update(id: string, updateClickLogsDto: UpdateClickLogsDto) {
+    return this.clickLogsRepository.update(id, updateClickLogsDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} analytics`;
+  async remove(id: string) {
+    return this.clickLogsRepository.delete(id);
   }
 }

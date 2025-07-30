@@ -12,7 +12,7 @@ export class ClickLogs {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'uuid' })
   url_id: string;
 
   @ManyToOne(() => Url, { onDelete: 'CASCADE' })

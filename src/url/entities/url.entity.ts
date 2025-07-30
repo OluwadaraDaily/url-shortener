@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ClickLogs } from 'src/analytics/entities/click_logs.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Url {
@@ -26,4 +27,7 @@ export class Url {
     nullable: false,
   })
   created_at: Date;
+
+  @OneToMany(() => ClickLogs, (clickLog) => clickLog.url)
+  clickLogs: ClickLogs[];
 }
