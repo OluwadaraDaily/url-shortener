@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { CreateClickLogsDto } from './dto/create-click-logs.dto';
@@ -66,7 +68,7 @@ export class AnalyticsController {
 
   @Get(':id')
   async findOneClickLog(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ApiResponse<ClickLogs> | ApiError> {
     try {
       const response = await this.analyticsService.findOneClickLog(id);
@@ -94,7 +96,7 @@ export class AnalyticsController {
 
   @Patch(':id')
   async updateClickLog(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateClickLogsDto: UpdateClickLogsDto,
   ): Promise<ApiResponse<ClickLogs> | ApiError> {
     try {
@@ -127,7 +129,7 @@ export class AnalyticsController {
 
   @Delete(':id')
   async removeClickLog(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ApiResponse<null> | ApiError> {
     try {
       const result = await this.analyticsService.removeClickLog(id);
@@ -153,5 +155,26 @@ export class AnalyticsController {
         message: error.message || 'Failed to delete click log',
       };
     }
+  }
+}
+
+@Controller('api/metrics')
+export class MetricsController {
+  constructor(private readonly analyticsService: AnalyticsService) {}
+
+  @Get(':urlId')
+  async getUrlMetrics(
+    @Param('urlId', ParseUUIDPipe) urlId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.analyticsService.getUrlMetrics(urlId, start, end);
+  }
+
+  @Post('aggregate')
+  async triggerMetricsAggregation() {
+    return this.analyticsService.aggregateDailyMetrics();
   }
 }

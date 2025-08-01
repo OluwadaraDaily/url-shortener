@@ -1,4 +1,5 @@
 import { ClickLogs } from 'src/analytics/entities/click_logs.entity';
+import { UrlMetricsDaily } from 'src/analytics/entities/url_metrics_daily.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -30,4 +31,7 @@ export class Url {
 
   @OneToMany(() => ClickLogs, (clickLog) => clickLog.url)
   clickLogs: ClickLogs[];
+
+  @OneToMany(() => UrlMetricsDaily, (metrics) => metrics.url)
+  dailyMetrics: UrlMetricsDaily[];
 }
