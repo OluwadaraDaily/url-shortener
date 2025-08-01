@@ -94,6 +94,35 @@ export class AnalyticsController {
     }
   }
 
+  @Get('url/:urlId')
+  async findAllClickLogsByUrlId(
+    @Param('urlId', ParseUUIDPipe) urlId: string,
+  ): Promise<ApiResponse<ClickLogs[]> | ApiError> {
+    try {
+      const response =
+        await this.analyticsService.findAllClickLogsByUrlId(urlId);
+      if (!response) {
+        return {
+          status: 'error',
+          statusCode: 404,
+          message: 'Click logs not found',
+        };
+      }
+      return {
+        status: 'success',
+        statusCode: 200,
+        message: 'Click logs fetched successfully',
+        data: response,
+      };
+    } catch (error: any) {
+      return {
+        status: 'error',
+        statusCode: 500,
+        message: error.message || 'Failed to fetch click logs',
+      };
+    }
+  }
+
   @Patch(':id')
   async updateClickLog(
     @Param('id', ParseUUIDPipe) id: string,

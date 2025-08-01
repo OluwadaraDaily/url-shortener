@@ -28,6 +28,13 @@ export class AnalyticsService {
     return this.clickLogsRepository.find();
   }
 
+  async findAllClickLogsByUrlId(urlId: string) {
+    return this.clickLogsRepository.find({
+      where: { url_id: urlId },
+      order: { created_at: 'DESC' },
+    });
+  }
+
   async findOneClickLog(id: string) {
     const clickLog = await this.clickLogsRepository.findOne({ where: { id } });
     if (!clickLog) {
