@@ -89,6 +89,16 @@ export class UrlService implements OnModuleInit {
       throw new Error('Tag already exists');
     }
 
+    // Check if provided short_code already exists
+    if (createUrlDto.short_code) {
+      const existingShortCode = await this.urlRepository.findOne({
+        where: { short_code: createUrlDto.short_code },
+      });
+      if (existingShortCode) {
+        throw new Error('Short code already exists');
+      }
+    }
+
     const shortCode =
       createUrlDto.short_code || (await this.generateUniqueShortCode(6, 5));
     const url = this.urlRepository.create({
