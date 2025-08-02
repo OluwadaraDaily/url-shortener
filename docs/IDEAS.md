@@ -34,7 +34,7 @@ This document contains a comprehensive list of potential features to enhance the
 
 ## 3. Rate Limiting and Security
 
-- [ ] 3.1. Implement different rate limiting strategies
+- [x] 3.1. Implement different rate limiting strategies
 - [ ] 3.2. DDOS protection
 - [ ] 3.3. Spam prevention system
 - [ ] 3.4. Link scanning for malicious content
