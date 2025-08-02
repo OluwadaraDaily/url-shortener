@@ -6,6 +6,9 @@ import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UrlModule } from './url/url.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AppThrottlerModule } from './common/throttler/throttler.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -23,6 +26,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
         DATABASE_URL: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
         REDIS_PORT: Joi.number().required(),
+        REDIS_HOST: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -40,10 +44,17 @@ import { AnalyticsModule } from './analytics/analytics.module';
       }),
       inject: [ConfigService],
     }),
+    AppThrottlerModule,
     UrlModule,
     AnalyticsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

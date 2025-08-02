@@ -10,6 +10,7 @@ import {
   Redirect,
   Req,
   Ip,
+  UseGuards,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
@@ -17,12 +18,15 @@ import { UpdateUrlDto } from './dto/update-url.dto';
 import { ApiError, ApiResponse } from 'src/common/types';
 import { Url } from './entities/url.entity';
 import { Request as ExpressRequest } from 'express';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 
 @Controller('api/url')
+@UseGuards(ThrottlerGuard)
 export class UrlController {
   constructor(private readonly urlService: UrlService) {}
 
   @Post()
+  @Throttle({ default: { ttl: 3600000, limit: 50 } }) // 50 requests per hour
   async create(
     @Body() createUrlDto: CreateUrlDto,
   ): Promise<ApiResponse<Url> | ApiError> {
@@ -43,6 +47,7 @@ export class UrlController {
   }
 
   @Get()
+  @Throttle({ default: { ttl: 60000, limit: 100 } }) // 100 requests per minute
   async findAll(): Promise<ApiResponse<Url[]> | ApiError> {
     const response = await this.urlService.findAll();
     if (!response) {
@@ -121,10 +126,12 @@ export class UrlController {
 }
 
 @Controller()
+@UseGuards(ThrottlerGuard)
 export class UrlRedirectController {
   constructor(private readonly urlService: UrlService) {}
 
   @Get(':shortCode')
+  @Throttle({ default: { ttl: 60000, limit: 50 } })
   @Redirect()
   async redirect(
     @Param('shortCode') shortCode: string,
