@@ -7,8 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UrlModule } from './url/url.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AppThrottlerModule } from './common/throttler/throttler.module';
-import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -49,12 +47,6 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     AnalyticsModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

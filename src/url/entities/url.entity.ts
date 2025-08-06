@@ -1,5 +1,5 @@
-import { ClickLogs } from 'src/analytics/entities/click_logs.entity';
-import { UrlMetricsDaily } from 'src/analytics/entities/url_metrics_daily.entity';
+import { ClickLogs } from '../../analytics/entities/click_logs.entity';
+import { UrlMetricsDaily } from '../../analytics/entities/url_metrics_daily.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
